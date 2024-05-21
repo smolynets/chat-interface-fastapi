@@ -86,7 +86,7 @@ class ChatMessage(SQLModel, table=True):
     text: str
     owner_id: int | None = Field(default=None, foreign_key="user.id", nullable=False)
     owner: User | None = Relationship(back_populates="messages")
-    created_at: Optional[datetime] = Column(DateTime, default=datetime.now(), nullable=True)
+    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
 
     class Config:
         orm_mode = True
