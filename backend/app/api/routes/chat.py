@@ -18,11 +18,14 @@ router = APIRouter()
 
 @router.get("/", response_model=ChatMessagesPublic)
 def read_items(
-    session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
+    session: SessionDep, current_user: CurrentUser, skip: int = None, limit: int = None
 ) -> Any:
     """
     Retrieve chat_messages.
     """
+
+    if limit is None:
+        limit = 2
 
     if current_user.is_superuser:
         count_statement = select(func.count()).select_from(ChatMessage)
