@@ -44,7 +44,7 @@ class UpdatePassword(SQLModel):
 class User(UserBase, table=True):
     id: int | None = Field(default=None, primary_key=True)
     hashed_password: str
-    items: list["Item"] = Relationship(back_populates="owner")
+    messages: list["ChatMessage"] = Relationship(back_populates="owner")
 
 
 # Properties to return via API, id is always required
@@ -54,41 +54,6 @@ class UserPublic(UserBase):
 
 class UsersPublic(SQLModel):
     data: list[UserPublic]
-    count: int
-
-
-# Shared properties
-class ItemBase(SQLModel):
-    title: str
-    description: str | None = None
-
-
-# Properties to receive on item creation
-class ItemCreate(ItemBase):
-    title: str
-
-
-# Properties to receive on item update
-class ItemUpdate(ItemBase):
-    title: str | None = None  # type: ignore
-
-
-# Database model, database table inferred from class name
-class Item(ItemBase, table=True):
-    id: int | None = Field(default=None, primary_key=True)
-    title: str
-    owner_id: int | None = Field(default=None, foreign_key="user.id", nullable=False)
-    owner: User | None = Relationship(back_populates="items")
-
-
-# Properties to return via API, id is always required
-class ItemPublic(ItemBase):
-    id: int
-    owner_id: int
-
-
-class ItemsPublic(SQLModel):
-    data: list[ItemPublic]
     count: int
 
 
@@ -111,3 +76,33 @@ class TokenPayload(SQLModel):
 class NewPassword(SQLModel):
     token: str
     new_password: str
+
+
+class ChatMessage(SQLModel, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    title: str
+    text: str
+    owner_id: int | None = Field(default=None, foreign_key="user.id", nullable=False)
+    owner: User | None = Relationship(back_populates="messages")
+
+
+class ChatMessageCreate(SQLModel):
+    title: str
+    text: str
+
+
+class ChatMessagePublic(SQLModel):
+    id: int
+    title: str
+    text: str
+    owner_id: int
+
+
+class ChatMessagesPublic(SQLModel):
+    data: list[ChatMessagePublic]
+    count: int
+
+
+class ChatMessageUpdate(SQLModel):
+    title: str
+    text: str
