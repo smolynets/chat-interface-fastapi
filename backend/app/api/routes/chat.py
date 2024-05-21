@@ -30,7 +30,7 @@ def read_items(
     if current_user.is_superuser:
         count_statement = select(func.count()).select_from(ChatMessage)
         count = session.exec(count_statement).one()
-        statement = select(ChatMessage).offset(skip).limit(limit)
+        statement = select(ChatMessage).order_by(ChatMessage.id).offset(skip).limit(limit)
         chat_messages = session.exec(statement).all()
     else:
         count_statement = (
@@ -42,6 +42,7 @@ def read_items(
         statement = (
             select(ChatMessage)
             .where(ChatMessage.owner_id == current_user.id)
+            .order_by(ChatMessage.id)
             .offset(skip)
             .limit(limit)
         )
@@ -87,7 +88,7 @@ def update_item(
     chat_message = session.get(ChatMessage, id)
     if not chat_message:
         raise HTTPException(status_code=404, detail="ChatMessage not found")
-    if not current_user.is_superuser and (item.owner_id != current_user.id):
+    if not current_user.is_superuser and (ChatMessage.owner_id != current_user.id):
         raise HTTPException(status_code=400, detail="Not enough permissions")
     update_dict = chat_message_in.model_dump(exclude_unset=True)
     chat_message.sqlmodel_update(update_dict)

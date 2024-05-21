@@ -1,6 +1,7 @@
 import secrets
 import warnings
 from typing import Annotated, Any, Literal
+import os
 
 from pydantic import (
     AnyUrl,
@@ -94,7 +95,7 @@ class Settings(BaseSettings):
     # TODO: update type to EmailStr when sqlmodel supports it
     FIRST_SUPERUSER: str
     FIRST_SUPERUSER_PASSWORD: str
-    USERS_OPEN_REGISTRATION: bool = False
+    USERS_OPEN_REGISTRATION: bool = os.getenv("USERS_OPEN_REGISTRATION", False)
 
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":

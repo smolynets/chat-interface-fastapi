@@ -1,4 +1,6 @@
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, Relationship, SQLModel, Column, DateTime
+from typing import Optional
+from datetime import datetime
 
 
 # Shared properties
@@ -84,6 +86,11 @@ class ChatMessage(SQLModel, table=True):
     text: str
     owner_id: int | None = Field(default=None, foreign_key="user.id", nullable=False)
     owner: User | None = Relationship(back_populates="messages")
+    created_at: Optional[datetime] = Column(DateTime, default=datetime.now(), nullable=True)
+
+    class Config:
+        orm_mode = True
+        arbitrary_types_allowed = True
 
 
 class ChatMessageCreate(SQLModel):
