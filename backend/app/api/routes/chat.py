@@ -12,6 +12,7 @@ from app.models import (
     ChatMessagePublic,
     ChatMessageUpdate
 )
+from datetime import datetime, timedelta
 
 router = APIRouter()
 
@@ -85,11 +86,14 @@ def update_item(
     """
     Update an ChatMessage.
     """
+    thirty_minutes_ago = datetime.utcnow() - timedelta(minutes=30)
     chat_message = session.get(ChatMessage, id)
     if not chat_message:
         raise HTTPException(status_code=404, detail="ChatMessage not found")
     if not current_user.is_superuser and (ChatMessage.owner_id != current_user.id):
         raise HTTPException(status_code=400, detail="Not enough permissions")
+    if chat_message.created_at < thirty_minutes_ago:
+        raise HTTPException(status_code=400, detail="Message created more than 30 min ago!")
     update_dict = chat_message_in.model_dump(exclude_unset=True)
     chat_message.sqlmodel_update(update_dict)
     session.add(chat_message)
